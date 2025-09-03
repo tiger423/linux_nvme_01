@@ -1,0 +1,85 @@
+# Linux NVMe Test - Git Ignore File
+
+# Python cache and bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual environments
+venv/
+env/
+ENV/
+.env
+.venv
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Test output and logs
+logs/
+*.log
+raw_outputs_*/
+nvme_test_results_*.json
+nvme_test_summary_*.csv
+tds_integration_*.json
+
+# Temporary test files
+test_*.yaml
+temp_*
+*.tmp
+
+# Coverage reports
+htmlcov/
+.coverage
+.coverage.*
+coverage.xml
+*.cover
+
+# pytest cache
+.pytest_cache/
+
+# mypy type checker
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# System files
+Thumbs.db
+.DS_Store
+
+# Local configuration overrides
+local_config.yaml
+*_local.yaml
+
+# Device-specific test results
+device_*/
+test_run_*/
+
+# Backup files
+*.bak
+*.backup

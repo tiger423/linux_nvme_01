@@ -1,0 +1,14 @@
+# Linux NVMe Information Command Test Dependencies
+# Python 3.6+ required
+
+# Core dependencies
+PyYAML>=5.1                    # YAML configuration file parsing
+
+# Optional development dependencies (uncomment if needed)
+# pytest>=6.0                 # Testing framework
+# flake8>=3.8                 # Code linting
+# black>=21.0                 # Code formatting
+
+# System requirements (install separately):
+# - nvme-cli tools (system package)
+# - Root/sudo privileges for NVMe device access
