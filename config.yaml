@@ -1,0 +1,196 @@
+# NVMe Information Command Test Configuration
+# Test: linux_nvme_01 - linux_nvme_information_cmd
+# Enterprise SSD Reliability Test Program
+
+# Core Test Configuration
+device: "/dev/nvme0n1"            # Target NVMe device path
+device_type: "bravo"              # Device type: bravo/delta/echo/compete
+runmode: "prod"                   # Execution mode: prod/debug/dryrun
+description: "NVMe Information Command Test - Enterprise SSD reliability validation using nvme-cli"
+quid: "nvme_info_qual_2024"       # Qualification ID for TDS integration
+
+# Command Execution Parameters
+command_timeout: 30               # Timeout per command (seconds)
+retry_attempts: 1                 # Number of retry attempts on failure
+retry_delay: 2                    # Delay between retries (seconds)
+
+# Logging Configuration
+log_level: "INFO"                 # Logging level: DEBUG/INFO/WARNING/ERROR
+output_dir: "./logs"              # Output directory for logs and results
+save_raw_outputs: true           # Save raw command outputs for debugging
+include_timestamps: true         # Include timestamps in log entries
+
+# Pass/Fail Criteria Settings
+allow_thermal_warnings: true     # Allow SMART thermal warnings (per specification)
+max_acceptable_media_errors: 0   # Maximum acceptable media error count
+require_all_commands_success: true # Require all 8 commands to succeed
+
+# Expected Hardware Parameters (will be overridden by device_type)
+expected_pcie:
+  width: 4                       # Expected PCIe lane count (x4)
+  speed: 3                       # Expected PCIe generation (Gen3)
+
+# SMART Threshold Configuration (will be overridden by device_type)
+smart_thresholds:
+  max_temperature: 70            # Maximum acceptable temperature (Celsius)
+  min_available_spare: 10        # Minimum available spare percentage
+  max_percent_used: 80           # Maximum wear level percentage
+
+# Expected namespace count (will be overridden by device_type)
+expected_namespaces: 1           # Expected number of namespaces
+
+# Device Type Specific Settings
+# Note: The following settings are applied automatically based on device_type
+# and will override the general settings above
+
+# BRAVO Series Configuration:
+# - PCIe Gen3 x4 interface
+# - Single namespace
+# - Standard enterprise thresholds
+# - 30 second command timeout
+# bravo:
+#   expected_pcie:
+#     width: 4
+#     speed: 3
+#   smart_thresholds:
+#     max_temperature: 70
+#     min_available_spare: 10
+#     max_percent_used: 80
+#   command_timeout: 30
+#   expected_namespaces: 1
+
+# DELTA Series Configuration:
+# - PCIe Gen4 x8 interface  
+# - Single namespace
+# - Higher performance thresholds
+# - 25 second command timeout
+# delta:
+#   expected_pcie:
+#     width: 8
+#     speed: 4
+#   smart_thresholds:
+#     max_temperature: 75
+#     min_available_spare: 10
+#     max_percent_used: 85
+#   command_timeout: 25
+#   expected_namespaces: 1
+
+# ECHO Series Configuration:
+# - PCIe Gen4 x4 interface
+# - Multi-namespace support (2 namespaces)
+# - Extended temperature range
+# - 35 second command timeout
+# echo:
+#   expected_pcie:
+#     width: 4
+#     speed: 4
+#   smart_thresholds:
+#     max_temperature: 80
+#     min_available_spare: 15
+#     max_percent_used: 90
+#   command_timeout: 35
+#   expected_namespaces: 2
+
+# COMPETE Series Configuration:
+# - PCIe Gen4 x16 interface
+# - Multi-namespace support (4 namespaces)
+# - Highest performance and endurance
+# - 20 second command timeout
+# compete:
+#   expected_pcie:
+#     width: 16
+#     speed: 4
+#   smart_thresholds:
+#     max_temperature: 85
+#     min_available_spare: 20
+#     max_percent_used: 95
+#   command_timeout: 20
+#   expected_namespaces: 4
+
+# Test Sequence Configuration
+# The following 8 commands are executed in sequence per specification:
+test_commands:
+  - name: "nvme_list"
+    description: "List all NVMe devices"
+    command: "nvme list"
+    
+  - name: "nvme_id_ctrl"
+    description: "Get controller identification"
+    command: "nvme id-ctrl"
+    
+  - name: "nvme_id_ns"  
+    description: "Get namespace identification"
+    command: "nvme id-ns -n 1"
+    
+  - name: "nvme_ns_descs"
+    description: "Get namespace descriptors"
+    command: "nvme ns-descs -n 1"
+    
+  - name: "nvme_show_regs"
+    description: "Display controller registers"
+    command: "nvme show-regs"
+    
+  - name: "nvme_fw_log"
+    description: "Get firmware log information"
+    command: "nvme fw-log"
+    
+  - name: "nvme_smart_log"
+    description: "Get SMART/health information"
+    command: "nvme smart-log"
+    
+  - name: "nvme_error_log"
+    description: "Get error log entries"
+    command: "nvme error-log -e 10"
+
+# Pass/Fail Criteria Details
+# The test fails if ANY of the following conditions are met:
+failure_criteria:
+  smart_critical_warnings:
+    - "Available spare space below threshold (bit 0)"
+    - "NVM subsystem reliability degraded (bit 2)"  
+    - "Media in read-only mode (bit 3)"
+    - "Volatile memory backup device failed (bit 4)"
+    # Note: Thermal warnings (bit 1) are allowed per specification
+    
+  pcie_link_issues:
+    - "Link width below expected value"
+    - "Link speed below expected generation"
+    
+  command_failures:
+    - "Command timeout (> configured timeout)"
+    - "Command response failure (non-zero return code)"
+    
+  firmware_issues:
+    - "Controller Fatal Status (CSTS.CFS = 1)"
+    - "Controller not ready when expected"
+
+# Output Format Configuration
+output_formats:
+  json_results: true              # Generate JSON results file
+  csv_summary: true               # Generate CSV summary file
+  tds_integration: true           # Generate TDS integration file
+  raw_command_outputs: true       # Save individual command outputs
+  test_report: true               # Generate human-readable test report
+
+# TDS (Test Data System) Integration
+tds_configuration:
+  test_suite: "linux_nvme_01"
+  test_case: "nvme_information_cmd" 
+  qualification_type: "device_validation"
+  result_format: "json"
+  include_raw_data: true
+
+# Advanced Options
+advanced_options:
+  validate_preconditions: true    # Validate test preconditions before execution
+  parallel_validation: false     # Execute validations in parallel (experimental)
+  detailed_parsing: true         # Enable detailed command output parsing
+  error_recovery: true           # Attempt error recovery on command failures
+  performance_monitoring: true   # Monitor command execution performance
+
+# Environment Validation
+environment_checks:
+  verify_root_privileges: true   # Check for root/sudo privileges
+  verify_nvme_cli_version: true  # Verify nvme-cli is installed and compatible
+  verify_device_accessibility: true # Check device file accessibility
+  verify_output_directory: true  # Verify output directory is writable

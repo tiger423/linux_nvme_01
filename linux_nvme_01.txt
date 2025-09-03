@@ -1,0 +1,41 @@
+﻿[linux_nvme_01] linux_nvme_information_cmd
+
+Purpose:
+This nvme info test is intended to check if fw provide device information functionally well, using nvme-cli.
+
+Tool : 
+nvme cli
+
+Pre-Condition:
+nvme namespace init (nsid = 1)
+
+Test Steps:
+nvme list
+nvme id-ctrl
+nvme id-ns
+nvme ns-descs /dev/nvmeX -n 1
+nvme show-regs
+nvme fw-log
+nvme smart-log
+nvme error-log 
+	-e 10
+
+Test pass/fail criteria
+SMART(LID=0x02) fail : Critical Warning (expect Thermal), Media Error
+pcie link status : Link Width & Speed
+nvme command : Timeout, Response fail
+Firmware Assert / Hang (CSTS.CFS=1, Fatal Error)
+Test result deliverables:
+Log file (Test tool or system log)
+
+Default Option:
+config: "tc spec yaml file path"
+device: "devices to be tested"
+runmode: "prod"
+device_type: "bravo/delta/echo/compete"
+description: "test description"
+quid: “qual name for tds“
+
+
+
+
